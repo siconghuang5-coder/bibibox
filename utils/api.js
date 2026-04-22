@@ -1,4 +1,4 @@
-import { API_BASE } from '../config/api.js'
+import { API_BASE, CDN_BASE } from '../config/api.js'
 import { clearSession, getToken, patchSession, setSession } from './session.js'
 
 const buildUrl = (path) => {
@@ -20,10 +20,14 @@ const parseResponseData = (data) => {
 
 export const resolveAssetUrl = (value) => {
   if (!value) {
-    return `${API_BASE}/static/default.png`
+    return `${CDN_BASE}/default.png`
   }
   if (/^(https?:)?\/\//.test(value) || value.startsWith('data:')) {
     return value
+  }
+  if (value.startsWith('/static')) {
+    // 劫持静态资源路由，使其从全球 CDN 边缘节点加载，直接剥离 /static 目录前缀
+    return `${CDN_BASE}${value.replace('/static', '')}`
   }
   return buildUrl(value)
 }

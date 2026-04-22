@@ -39,14 +39,14 @@
       <view :class="['login-list', { 'fade-out': isAnimating }]">
         <button class="btn btn-wechat" @tap="handleWeChatLogin">
           <view class="btn-icon-wrap">
-            <image class="btn-icon" src="/static/wechat.png" mode="aspectFit" />
+            <image class="btn-icon" src="/static/png/wechat.png" mode="aspectFit" />
           </view>
           <text class="btn-text">微信一键登录</text>
         </button>
 
         <button class="btn btn-alipay" @tap="handleLogin">
           <view class="btn-icon-wrap btn-icon-wrap-alipay">
-            <image class="btn-icon" src="/static/alipay.png" mode="aspectFit" />
+            <image class="btn-icon" src="/static/png/alipay.png" mode="aspectFit" />
           </view>
           <text class="btn-text">支付宝一键登录</text>
         </button>

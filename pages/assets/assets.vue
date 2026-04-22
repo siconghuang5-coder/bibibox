@@ -328,6 +328,9 @@ onShow(() => {
 .holding-info {
   flex: 1;
   padding: 0 16rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .holding-title {

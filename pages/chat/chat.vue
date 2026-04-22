@@ -109,9 +109,12 @@ const filterList = (list, mapper) => {
 const filteredItems = computed(() =>
   filterList(items.value, (item) => `${item.digitalHuman.displayName} ${item.lastMessagePreview || ''}`)
 )
-const filteredDiscover = computed(() =>
-  filterList(discover.value, (item) => `${item.displayName} ${item.tagline || ''}`)
-)
+// NOTE: 过滤掉薇薇安和星野樱，不在发现列表中展示
+const HIDDEN_DISCOVER_NAMES = new Set(['薇薇安', '星野樱'])
+const filteredDiscover = computed(() => {
+  const visible = discover.value.filter((item) => !HIDDEN_DISCOVER_NAMES.has(item.displayName))
+  return filterList(visible, (item) => `${item.displayName} ${item.tagline || ''}`)
+})
 
 const refreshList = async () => {
   try {
@@ -278,9 +281,17 @@ onShow(() => {
 }
 
 .pin-ai-text,
-.item-main,
+.item-main {
+  flex: 1;
+  margin-left: 24rpx;
+}
+
 .discover-main {
   flex: 1;
+  margin-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .row {
@@ -385,15 +396,26 @@ onShow(() => {
   background: #f3f4f6;
 }
 
+.discover-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .discover-name {
-  font-size: 26rpx;
+  display: block;
+  font-size: 28rpx;
   font-weight: 700;
+  color: #0f172a;
 }
 
 .discover-tagline {
+  display: block;
   margin-top: 8rpx;
-  font-size: 22rpx;
-  color: #94a3b8;
+  font-size: 24rpx;
+  color: #64748b;
 }
 
 .discover-btn {

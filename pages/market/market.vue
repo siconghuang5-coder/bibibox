@@ -7,40 +7,44 @@
         <text class="header-text-small">回到顶部</text>
       </view>
       <text class="header-title">Bibi Box 商城</text>
-      <view class="header-btn" @tap="toggleCart">
-        <view class="cart-dot" v-if="cartTotalQty > 0" />
-        <text class="header-icon">🛒</text>
+      <view class="header-btn" style="position: relative;" @tap="toggleCart">
+        <view class="cart-badge" v-if="cartTotalQty > 0">{{ cartTotalQty }}</view>
+        <image class="header-icon-img" src="/static/png/shopping-cart/shopping-cart-fill.png" mode="aspectFit" />
         <text class="header-text-small">购物车</text>
       </view>
 
-      <!-- 购物车下拉面板 -->
-      <view class="cart-dropdown" v-if="showCart">
-        <view v-if="cartList.length === 0" class="cart-empty">购物车为空</view>
-        <view v-else>
-          <view class="cart-list">
-            <view class="cart-item" v-for="item in cartList" :key="item.id">
-              <image v-if="item.coverUrl" class="cart-item-img" :src="item.coverUrl" mode="aspectFill" />
-              <view v-else class="cart-item-icon-wrap"><text>🛍</text></view>
-              
-              <view class="cart-item-info">
-                <text class="cart-item-name">{{ item.name }}</text>
-                <text class="cart-item-price">{{ item.priceCoins }} 币</text>
-              </view>
-              
-              <view class="cart-item-actions">
-                <view class="qty-btn" @tap.stop="decreaseQty(item)">-</view>
-                <text class="qty-text">{{ item.quantity }}</text>
-                <view class="qty-btn" @tap.stop="increaseQty(item)">+</view>
-              </view>
+    </view>
+
+    <!-- 购物车背景遮罩，移至顶层避免受到 sticky 的高度裁剪导致外部无法点击关闭 -->
+    <view class="cart-mask" v-if="showCart" @tap="showCart = false" @touchmove.stop.prevent></view>
+    
+    <!-- 购物车下拉面板，同步移至顶层，改为 fixed 定位 -->
+    <view class="cart-dropdown" v-if="showCart" @tap.stop>
+      <view v-if="cartList.length === 0" class="cart-empty">购物车为空</view>
+      <view v-else>
+        <view class="cart-list">
+          <view class="cart-item" v-for="item in cartList" :key="item.id">
+            <image v-if="item.coverUrl" class="cart-item-img" :src="item.coverUrl" mode="aspectFill" />
+            <view v-else class="cart-item-icon-wrap"><text>🛍</text></view>
+            
+            <view class="cart-item-info">
+              <text class="cart-item-name">{{ item.name }}</text>
+              <text class="cart-item-price">{{ item.priceCoins }} 币</text>
+            </view>
+            
+            <view class="cart-item-actions">
+              <view class="qty-btn" @tap.stop="decreaseQty(item)">-</view>
+              <text class="qty-text">{{ item.quantity }}</text>
+              <view class="qty-btn" @tap.stop="increaseQty(item)">+</view>
             </view>
           </view>
-          <view class="cart-footer">
-            <view class="cart-summary">
-              <text class="cart-total-original">总价格：{{ formatCoins(cartTotalPrice) }} 币</text>
-              <text class="cart-total-discount">当前余额：{{ formatCoins(walletBalance) }} 币</text>
-            </view>
-            <button class="checkout-btn" @tap="checkout">前往结账</button>
+        </view>
+        <view class="cart-footer">
+          <view class="cart-summary">
+            <text class="cart-total-original">总价格：{{ formatCoins(cartTotalPrice) }} 币</text>
+            <text class="cart-total-discount">当前余额：{{ formatCoins(walletBalance) }} 币</text>
           </view>
+          <button class="checkout-btn" @tap="checkout">前往结账</button>
         </view>
       </view>
     </view>
@@ -82,7 +86,7 @@
       <!-- 数字人 2x2 -->
       <view class="section">
         <view class="section-header">
-          <text class="section-title">数字人</text>
+          <text class="section-title">热门数字人推荐</text>
         </view>
 
         <view class="section-content-box">
@@ -108,7 +112,7 @@
       <!-- AI 礼物 横向滑动 -->
       <view class="section">
         <view class="section-header">
-          <text class="section-title">AI 礼物</text>
+          <text class="section-title">精选数字人礼物</text>
         </view>
 
         <view class="section-content-box">
@@ -122,19 +126,15 @@
             <view class="gift-card" v-for="gift in filteredGifts" :key="gift.id" @tap="openProduct(gift.id)">
               <view class="gift-inner" :class="gift.bgClass">
                 <view class="gift-light" />
-                <text class="gift-icon">{{ gift.icon }}</text>
+                <image class="gift-icon-img" :src="gift.coverUrl" mode="aspectFill" />
                 <view>
-                  <text class="gift-label">{{ gift.badge || 'AI 礼物' }}</text>
                   <text class="gift-title">{{ gift.name }}</text>
                 </view>
               </view>
               <view class="gift-meta">
-                <text class="gift-meta-title">{{ gift.subtitle }}</text>
-                <view class="gift-bottom">
-                  <text class="gift-meta-price">{{ gift.priceCoins }} 币</text>
-                  <view class="gift-add" @tap.stop="addToCart(gift)">
-                    <text class="gift-add-icon">＋</text>
-                  </view>
+                <view style="position: relative; width: 100%; height: 40rpx; margin-top: 12rpx;">
+                  <text class="gift-meta-price" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;">{{ gift.priceCoins }} 币</text>
+                  <image src="/static/png/add-circle/add-circle-blue.png" style="position: absolute; right: 8rpx; top: 50%; transform: translateY(-50%); width: 36rpx; height: 36rpx;" @tap.stop="addToCart(gift)" />
                 </view>
               </view>
             </view>
@@ -145,7 +145,7 @@
       <!-- 精选商品 横向滑动 -->
       <view class="section">
         <view class="section-header">
-          <text class="section-title">精选商品</text>
+          <text class="section-title">数字人陪伴产品</text>
         </view>
 
         <view class="section-content-box">
@@ -165,11 +165,9 @@
                   <text class="product-name-strong">{{ product.name }}</text>
                   <text class="product-name-sub">{{ product.subtitle }}</text>
                 </view>
-                <view class="product-bottom">
-                  <text class="product-price">{{ product.priceCoins }} 币</text>
-                  <view class="product-add" @tap.stop="addToCart(product)">
-                    <text class="product-add-icon">＋</text>
-                  </view>
+                <view style="position: relative; width: 100%; height: 48rpx; margin-top: 8rpx;">
+                  <text class="product-price" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;">{{ product.priceCoins }} 币</text>
+                  <image src="/static/png/add-circle/add-circle.png" @tap.stop="addToCart(product)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); margin: 0; width: 40rpx; height: 40rpx;" />
                 </view>
               </view>
             </view>
@@ -277,8 +275,7 @@ const syncHome = async () => {
     avatars.value = (response.sections?.digitalHumans || []).map(item => normalizeProduct(item, 'DIGITAL_HUMAN'))
     gifts.value = (response.sections?.gifts || []).map((item, index) => ({
       ...normalizeProduct(item, 'GIFT'),
-      bgClass: ['gift-bg-1', 'gift-bg-2', 'gift-bg-3'][index % 3],
-      icon: ['🎁', '❤️', '⭐'][index % 3]
+      bgClass: ['gift-bg-1', 'gift-bg-2', 'gift-bg-3'][index % 3]
     }))
     products.value = (response.sections?.merch || []).map(item => normalizeProduct(item, 'MERCH'))
     await refreshTabBadges()
@@ -456,14 +453,32 @@ onShow(() => {
   color: #0f172a;
 }
 
-.cart-dot {
+.cart-badge {
   position: absolute;
-  width: 12rpx;
-  height: 12rpx;
+  top: 4rpx;
+  right: 6rpx;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 20rpx;
+  font-weight: bold;
+  height: 32rpx;
+  min-width: 32rpx;
+  padding: 0 8rpx;
   border-radius: 999rpx;
-  background-color: #36a4f2;
-  top: 14rpx;
-  right: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.cart-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  background-color: rgba(0, 0, 0, 0.4); /* 半透明遮罩更符合弹窗 UX，并且能稳定拦截点击 */
 }
 
 .scroll {
@@ -574,11 +589,24 @@ onShow(() => {
 }
 
 .section-title {
-  font-size: 38rpx;
-  font-weight: 900; /* extra bold */
-  font-style: normal;
-  letter-spacing: 1.5rpx;
-  display: block; /* 标题单独一行 */
+  font-size: 36rpx;
+  font-weight: 900; /* 加黑加粗重点感 */
+  letter-spacing: 1rpx;
+  color: #000000; /* 纯黑 */
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.section-title::before {
+  content: '';
+  display: block;
+  width: 12rpx;
+  height: 12rpx;
+  background-color: #36a4f2; /* 主题蓝悬浮点 */
+  border-radius: 50%;
+  margin-right: 16rpx;
+  box-shadow: 0 0 12rpx rgba(54, 164, 242, 0.6); /* 呼吸灯发光特效 */
 }
 
 .box-header {
@@ -689,7 +717,11 @@ onShow(() => {
 
 .gift-inner {
   border-radius: 24rpx;
-  padding: 8rpx;
+  padding: 10rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .gift-bg-1 {
@@ -708,21 +740,20 @@ onShow(() => {
   position: absolute;
 }
 
-.gift-icon {
-  font-size: 32rpx;
-  color: #ffffff;
-}
-
-.gift-label {
-  font-size: 18rpx;
-  color: rgba(255, 255, 255, 0.8);
+.gift-icon-img {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 16rpx;
+  display: block;
+  margin-bottom: 8rpx;
 }
 
 .gift-title {
   display: block;
-  font-size: 22rpx;
+  font-size: 28rpx;
   font-weight: 700;
   color: #ffffff;
+  text-align: center;
 }
 
 .gift-meta {
@@ -763,6 +794,8 @@ onShow(() => {
 .product-name {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   font-size: 24rpx;
   font-weight: 700;
 }
@@ -808,8 +841,8 @@ onShow(() => {
 
 /* 购物车弹窗样式 */
 .cart-dropdown {
-  position: absolute;
-  top: 100rpx;
+  position: fixed;
+  top: 112rpx;
   right: 24rpx;
   width: 520rpx;
   background-color: #ffffff;

@@ -80,11 +80,14 @@
               <image class="post-avatar" :src="resolveAssetUrl(item.author.avatarUrl)" mode="aspectFill" />
               <view class="post-user">
                 <text class="post-name">{{ item.author.displayName }}</text>
-                <text class="post-sub">{{ formatRelativeTime(item.publishedAt) }} · {{ item.author.tagline }}</text>
+                <text class="post-sub">{{ item.author.tagline }}</text>
               </view>
             </view>
-            <view class="follow-btn" @tap="follow(item.author.id)">
-              <text class="follow-text">+关注</text>
+            <view class="post-meta">
+              <text class="post-time">{{ formatRelativeTime(item.publishedAt) }}</text>
+              <view class="follow-btn" @tap="follow(item.author.id)">
+                <text class="follow-text">+关注</text>
+              </view>
             </view>
           </view>
 
@@ -93,8 +96,14 @@
           <image v-if="item.media[0]" class="post-image" :src="resolveAssetUrl(item.media[0].url)" mode="aspectFill" />
 
           <view class="post-footer">
-            <text>{{ item.stats.likes }} 赞</text>
-            <text>{{ item.stats.comments }} 评论</text>
+            <view class="footer-action">
+              <image src="/static/png/favorite/favorite-red.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <text>{{ item.stats.likes }}</text>
+            </view>
+            <view class="footer-action" @tap="openPostDetail(item.id)">
+              <image src="/static/png/chat-bubble/Chat Bubble-blue.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <text>{{ item.stats.comments }}</text>
+            </view>
           </view>
         </view>
       </view>
@@ -168,6 +177,12 @@ const follow = async (accountId) => {
 const openProfile = (accountId) => {
   uni.navigateTo({
     url: `/pages/profile/detail?accountId=${accountId}`
+  })
+}
+
+const openPostDetail = (postId) => {
+  uni.navigateTo({
+    url: `/pages/social/detail?id=${postId}`
   })
 }
 
@@ -335,6 +350,8 @@ onShow(() => {
 .post-user {
   flex: 1;
   padding: 0 16rpx;
+  display: flex;
+  flex-direction: column;
 }
 
 .result-name,
@@ -472,6 +489,17 @@ onShow(() => {
   border-radius: 999rpx;
 }
 
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.post-time {
+  font-size: 22rpx;
+  color: #94a3b8;
+}
+
 .post-content {
   display: block;
   margin-top: 18rpx;
@@ -489,10 +517,20 @@ onShow(() => {
 }
 
 .post-footer {
-  margin-top: 16rpx;
+  margin-top: 24rpx;
   display: flex;
-  justify-content: space-between;
-  font-size: 22rpx;
-  color: #94a3b8;
+  align-items: center;
+  font-size: 24rpx;
+  color: #64748b;
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 16rpx;
+}
+
+.footer-action {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12rpx;
 }
 </style>

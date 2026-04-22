@@ -28,15 +28,29 @@
             :src="resolveAssetUrl(item.sender?.avatarUrl || fallbackAvatar(item.role))"
             mode="aspectFill"
           />
-          <view class="message-bubble" :class="{ self: item.role === 'USER' }">
-            <text v-if="item.textContent" class="message-text">{{ item.textContent }}</text>
-            <image v-if="item.messageType === 'IMAGE' && item.mediaUrl" class="message-image" :src="item.mediaUrl" mode="widthFix" />
-            <view v-if="item.messageType === 'AUDIO'" class="message-audio">
-              <text class="audio-label">语音消息</text>
-              <text class="audio-text">{{ item.transcription || '未提供语音摘要' }}</text>
-              <audio v-if="item.mediaUrl" :src="item.mediaUrl" controls></audio>
-            </view>
-            <text class="message-time">{{ formatDateTime(item.createdAt) }}</text>
+          <view class="message-bubble" :class="{ self: item.role === 'USER', 'is-gift-card': isGiftMessage(item) }">
+            <template v-if="isGiftMessage(item)">
+              <view class="gift-message-content" @tap="toggleGiftPanel">
+                <view class="gift-msg-icon-wrap gift-msg-icon-wrap-large">
+                  <image :src="item.mediaUrl ? resolveAssetUrl(item.mediaUrl) : '/static/png/gift/gift.png'" mode="aspectFill" class="gift-msg-icon gift-msg-icon-large" />
+                </view>
+                <view class="gift-msg-info gift-msg-info-large">
+                  <text class="gift-msg-title">送出专属礼物</text>
+                  <text class="gift-msg-name">{{ extractGiftName(item.textContent) }}</text>
+                </view>
+              </view>
+              <text class="message-time">{{ formatDateTime(item.createdAt) }}</text>
+            </template>
+            <template v-else>
+              <text v-if="item.textContent" class="message-text">{{ item.textContent }}</text>
+              <image v-if="item.messageType === 'IMAGE' && item.mediaUrl" class="message-image" :src="item.mediaUrl" mode="widthFix" />
+              <view v-if="item.messageType === 'AUDIO'" class="message-audio">
+                <text class="audio-label">语音消息</text>
+                <text class="audio-text">{{ item.transcription || '未提供语音摘要' }}</text>
+                <audio v-if="item.mediaUrl" :src="item.mediaUrl" controls></audio>
+              </view>
+              <text class="message-time">{{ formatDateTime(item.createdAt) }}</text>
+            </template>
           </view>
         </view>
       </view>
@@ -57,10 +71,42 @@
         placeholder-class="composer-placeholder"
       />
       <view class="composer-actions">
+        <view class="tool-btn" @tap="toggleGiftPanel">礼物</view>
         <view class="tool-btn" @tap="chooseImage">图片</view>
         <view class="tool-btn" @tap="toggleRecord">{{ isRecording ? '停止' : '语音' }}</view>
         <view class="send-btn" @tap="sendCurrent">发送</view>
       </view>
+    </view>
+
+    <!-- Gift Panel Popup -->
+    <view v-if="showGiftPanel" class="gift-overlay" @tap="toggleGiftPanel" />
+    <view v-if="showGiftPanel" class="gift-panel">
+      <view class="gift-header">
+        <text class="gift-title">送给 {{ conversation?.digitalHuman?.displayName || '数字人' }}</text>
+        <text class="gift-close" @tap="toggleGiftPanel">×</text>
+      </view>
+      <scroll-view scroll-x class="gift-list" :show-scrollbar="false">
+        <view class="gift-items">
+          <view 
+            class="gift-card" 
+            v-for="item in holdings" 
+            :key="item.id"
+            @tap="sendGift(item)"
+          >
+            <image class="gift-icon" :src="resolveAssetUrl(item.coverUrl)" mode="aspectFill" />
+            <text class="gift-name">{{ item.title }}</text>
+            <text class="gift-qty">拥有 {{ item.quantity }} 个</text>
+            <view class="gift-send-btn">赠送</view>
+          </view>
+          
+          <view class="gift-card gift-card-more" @tap="goMarket">
+            <view class="gift-icon-more">+</view>
+            <text class="gift-name">获取更多</text>
+            <text class="gift-qty">前往市场选购</text>
+            <view class="gift-send-btn outline">去看看</view>
+          </view>
+        </view>
+      </scroll-view>
     </view>
   </view>
 </template>
@@ -82,6 +128,45 @@ const audioDraft = ref({
   path: '',
   durationSeconds: 0
 })
+
+const isGiftMessage = (item) => {
+  return item.role === 'USER' && item.textContent && item.textContent.startsWith('【赠送礼物】')
+}
+
+const extractGiftName = (text) => {
+  const match = text.match(/【赠送礼物】：([^\n]+)/)
+  return match ? match[1] : '精美礼物'
+}
+
+const showGiftPanel = ref(false)
+const holdings = ref([])
+
+const toggleGiftPanel = async () => {
+  showGiftPanel.value = !showGiftPanel.value
+  if (showGiftPanel.value && holdings.value.length === 0) {
+    try {
+      const resp = await request({ url: '/api/assets' })
+      holdings.value = resp.holdings || []
+    } catch (e) {
+      console.error('Failed to load assets', e)
+    }
+  }
+}
+
+const sendGift = async (item) => {
+  toggleGiftPanel()
+  const giftText = `【赠送礼物】：${item.title}\n（这是一份充满心意的珍贵礼物，希望你能喜欢！）`
+  try {
+    await sendPayload({
+      messageType: 'TEXT',
+      textContent: giftText,
+      mediaUrl: item.coverUrl
+    })
+    uni.showToast({ title: '礼物已送达', icon: 'success' })
+  } catch (error) {
+    uni.showToast({ title: '送礼失败', icon: 'none' })
+  }
+}
 
 let pollTimer = null
 let recorderManager = null
@@ -240,6 +325,13 @@ const clearAudioDraft = () => {
 const goBack = () => {
   uni.navigateBack({
     delta: 1
+  })
+}
+
+const goMarket = () => {
+  toggleGiftPanel()
+  uni.switchTab({
+    url: '/pages/market/market'
   })
 }
 
@@ -405,6 +497,90 @@ onUnload(() => {
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* Luxury Gift Card Styles */
+.message-bubble.is-gift-card {
+  background: linear-gradient(145deg, #1e293b, #0f172a);
+  border: 1rpx solid #38bdf8;
+  box-shadow: 0 10rpx 30rpx rgba(56, 189, 248, 0.25), inset 0 0 20rpx rgba(56, 189, 248, 0.1);
+  padding: 32rpx;
+  min-width: 460rpx;
+  position: relative;
+  overflow: hidden;
+  border-radius: 28rpx;
+}
+
+.message-bubble.is-gift-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+  transform: rotate(45deg) translateY(-100%);
+  animation: sweep 3s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0% { transform: rotate(45deg) translateY(-100%); }
+  50% { transform: rotate(45deg) translateY(100%); }
+  100% { transform: rotate(45deg) translateY(100%); }
+}
+
+.gift-message-content {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.gift-msg-icon-wrap.gift-msg-icon-wrap-large {
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4rpx 15rpx rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+.gift-msg-icon.gift-msg-icon-large {
+  width: 100%;
+  height: 100%;
+}
+
+.gift-msg-info-large {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.gift-msg-info-large .gift-msg-title {
+  color: #bae6fd;
+  font-size: 22rpx;
+  font-weight: 500;
+  margin-bottom: 6rpx;
+}
+
+.gift-msg-info-large .gift-msg-name {
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 800;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.4);
+}
+
+.message-bubble.is-gift-card .message-time {
+  margin-top: 20rpx;
+  color: rgba(255,255,255,0.4);
+  text-align: right;
+  border-top: 1rpx solid rgba(255,255,255,0.05);
+  padding-top: 16rpx;
+}
+
 .draft-chip {
   margin: 16rpx 24rpx 0;
   padding: 18rpx 20rpx;
@@ -476,5 +652,136 @@ onUnload(() => {
   min-width: 180rpx;
   background: #36a4f2;
   color: #ffffff;
+}
+
+/* Gift Settings - Tik Tok Style */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.gift-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+}
+
+.gift-panel {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 560rpx;
+  background: #ffffff;
+  border-radius: 36rpx 36rpx 0 0;
+  z-index: 101;
+  padding: 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-shadow: 0 -10rpx 40rpx rgba(0, 0, 0, 0.05);
+}
+
+.gift-header {
+  padding: 0 40rpx 32rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gift-title {
+  color: #0f172a;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.gift-close {
+  color: #94a3b8;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.gift-list {
+  flex: 1;
+  width: 100%;
+}
+
+.gift-items {
+  display: flex;
+  padding: 0 32rpx;
+  gap: 20rpx;
+}
+
+.gift-card {
+  width: 200rpx;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 20rpx;
+  padding: 24rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.gift-icon {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 16rpx;
+}
+
+.gift-name {
+  color: #1e293b;
+  font-size: 26rpx;
+  margin-top: 16rpx;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.gift-qty {
+  color: #64748b;
+  font-size: 20rpx;
+  margin-top: 8rpx;
+}
+
+.gift-send-btn {
+  margin-top: 24rpx;
+  background: linear-gradient(135deg, #36a4f2, #7dd3fc);
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 10rpx 36rpx;
+  border-radius: 99rpx;
+  box-shadow: 0 8rpx 20rpx rgba(54, 164, 242, 0.25);
+}
+
+.gift-card-more {
+  background: #f1f5f9;
+  border: 1rpx dashed #cbd5e1;
+}
+
+.gift-icon-more {
+  width: 110rpx;
+  height: 110rpx;
+  border-radius: 16rpx;
+  background: #e2e8f0;
+  color: #94a3b8;
+  font-size: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+}
+
+.gift-send-btn.outline {
+  background: transparent;
+  color: #36a4f2;
+  border: 2rpx solid #36a4f2;
+  box-shadow: none;
+  padding: 8rpx 34rpx;
 }
 </style>

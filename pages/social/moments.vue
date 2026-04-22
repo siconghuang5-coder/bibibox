@@ -2,11 +2,11 @@
   <view class="page page-social">
     <view class="social-header">
       <view class="header-side">
-        <text class="header-icon" @tap="refreshFeed">↻</text>
+        <image src="/static/png/edit/edit-blue.png" class="header-icon-img" @tap="toggleComposer" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
       </view>
       <text class="header-title">Bibi Box</text>
       <view class="header-side">
-        <text class="header-icon accent" @tap="goNotifications">🔔</text>
+        <image src="/static/png/notification/notification-filling-blue.png" class="header-icon-img" @tap="goNotifications" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
       </view>
     </view>
 
@@ -20,7 +20,7 @@
     </view>
 
     <scroll-view scroll-y class="scroll" :show-scrollbar="false">
-      <view class="composer-card">
+      <view class="composer-card" v-if="showComposer">
         <textarea
           v-model="draft"
           class="composer-input"
@@ -62,11 +62,11 @@
 
           <view class="moment-actions">
             <view class="action" :class="{ active: item.viewer.liked }" @tap="toggleLike(item)">
-              <text class="action-icon">♥</text>
+              <image src="/static/png/favorite/favorite-red.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text class="action-count">{{ item.stats.likes }}</text>
             </view>
-            <view class="action" @tap="toggleComment(item.id)">
-              <text class="action-icon">💬</text>
+            <view class="action" @tap="openPostDetail(item.id)">
+              <image src="/static/png/chat-bubble/Chat Bubble-blue.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text class="action-count">{{ item.stats.comments }}</text>
             </view>
           </view>
@@ -108,6 +108,11 @@ const draft = ref('')
 const draftImage = ref('')
 const activeCommentPostId = ref('')
 const commentText = ref('')
+const showComposer = ref(false)
+
+const toggleComposer = () => {
+  showComposer.value = !showComposer.value
+}
 
 const refreshFeed = async () => {
   try {
@@ -172,6 +177,7 @@ const publishPost = async () => {
     })
     draft.value = ''
     draftImage.value = ''
+    showComposer.value = false
     uni.showToast({ title: '已发布', icon: 'none' })
     await refreshFeed()
   } catch (error) {
@@ -223,6 +229,12 @@ const sendComment = async (postId) => {
 const openProfile = (accountId) => {
   uni.navigateTo({
     url: `/pages/profile/detail?accountId=${accountId}`
+  })
+}
+
+const openPostDetail = (postId) => {
+  uni.navigateTo({
+    url: `/pages/social/detail?id=${postId}`
   })
 }
 
@@ -292,6 +304,18 @@ onShow(() => {
   display: flex;
   padding: 0 32rpx;
   background-color: rgba(255, 255, 255, 0.96);
+}
+
+.result-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-user {
+  flex: 1;
+  padding: 0 16rpx;
+  display: flex;
+  flex-direction: column;
 }
 
 .tab {
@@ -417,6 +441,8 @@ onShow(() => {
 
 .moment-user {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .moment-name {
@@ -459,13 +485,17 @@ onShow(() => {
 .moment-actions {
   margin-top: 18rpx;
   display: flex;
-  gap: 24rpx;
+  align-items: center;
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 16rpx;
 }
 
 .action {
+  flex: 1;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 8rpx;
+  gap: 12rpx;
   font-size: 24rpx;
   color: #64748b;
 }
