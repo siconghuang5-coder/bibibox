@@ -47,7 +47,10 @@
               <view v-if="item.messageType === 'AUDIO'" class="message-audio">
                 <text class="audio-label">语音消息</text>
                 <text class="audio-text">{{ item.transcription || '未提供语音摘要' }}</text>
-                <audio v-if="item.mediaUrl" :src="item.mediaUrl" controls></audio>
+                <view v-if="item.mediaUrl" class="audio-play-btn" @tap="playAudio(item.mediaUrl)">
+                  <text class="audio-play-icon">{{ currentPlaying === item.mediaUrl ? '■' : '▶' }}</text>
+                  <text>{{ currentPlaying === item.mediaUrl ? '停止播放' : '点击播放' }}</text>
+                </view>
               </view>
               <text class="message-time">{{ formatDateTime(item.createdAt) }}</text>
             </template>
@@ -128,6 +131,34 @@ const audioDraft = ref({
   path: '',
   durationSeconds: 0
 })
+
+const currentPlaying = ref('')
+let innerAudioContext = null
+
+const playAudio = (url) => {
+  if (!url) return
+  
+  if (!innerAudioContext) {
+    innerAudioContext = uni.createInnerAudioContext()
+    innerAudioContext.onEnded(() => {
+      currentPlaying.value = ''
+    })
+    innerAudioContext.onError((err) => {
+      console.error('[chat:playAudio]', err)
+      currentPlaying.value = ''
+      uni.showToast({ title: '播放失败', icon: 'none' })
+    })
+  }
+
+  if (currentPlaying.value === url) {
+    innerAudioContext.stop()
+    currentPlaying.value = ''
+  } else {
+    innerAudioContext.src = resolveAssetUrl(url)
+    innerAudioContext.play()
+    currentPlaying.value = url
+  }
+}
 
 const isGiftMessage = (item) => {
   return item.role === 'USER' && item.textContent && item.textContent.startsWith('【赠送礼物】')
@@ -368,6 +399,9 @@ onUnload(() => {
   if (recorderManager && isRecording.value) {
     recorderManager.stop()
   }
+  if (innerAudioContext) {
+    innerAudioContext.destroy()
+  }
 })
 </script>
 
@@ -479,6 +513,28 @@ onUnload(() => {
   display: flex;
   flex-direction: column;
   gap: 10rpx;
+}
+
+.audio-play-btn {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  background: rgba(54, 164, 242, 0.1);
+  padding: 12rpx 24rpx;
+  border-radius: 99rpx;
+  margin-top: 10rpx;
+  color: #36a4f2;
+  font-size: 24rpx;
+  align-self: flex-start;
+}
+
+.message-bubble.self .audio-play-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.audio-play-icon {
+  font-size: 20rpx;
 }
 
 .audio-label {
