@@ -1,4 +1,4 @@
-<template>
+ <template>
   <view class="page page-chat-detail">
     <view class="header">
       <text class="header-action" @tap="goBack">‹</text>
@@ -169,21 +169,7 @@ const extractGiftName = (text) => {
   return match ? match[1] : '精美礼物'
 }
 
-const innerAudioContext = uni.createInnerAudioContext()
-innerAudioContext.onError((res) => {
-  console.error('Audio play error:', res)
-  uni.showToast({ title: '语音播放失败', icon: 'none' })
-})
 
-const playAudio = (url) => {
-  if (!url) return
-  if (innerAudioContext.src === url && !innerAudioContext.paused) {
-    innerAudioContext.stop()
-    return
-  }
-  innerAudioContext.src = url
-  innerAudioContext.play()
-}
 
 const showGiftPanel = ref(false)
 const holdings = ref([])
