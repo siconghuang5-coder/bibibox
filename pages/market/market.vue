@@ -3,13 +3,13 @@
     <!-- 顶部栏 -->
     <view class="header">
       <view class="header-btn" @tap="handleScrollToTop">
-        <image class="header-icon-img" src="/static/arrow-up.png" mode="aspectFit" />
+        <image class="header-icon-img" :src="resolveAssetUrl('/static/arrow-up.png')" mode="aspectFit" />
         <text class="header-text-small">回到顶部</text>
       </view>
       <text class="header-title">Bibi Box 商城</text>
       <view class="header-btn" style="position: relative;" @tap="toggleCart">
         <view class="cart-badge" v-if="cartTotalQty > 0">{{ cartTotalQty }}</view>
-        <image class="header-icon-img" src="/static/png/shopping-cart/shopping-cart-fill.png" mode="aspectFit" />
+        <image class="header-icon-img" :src="resolveAssetUrl('/static/png/shopping-cart/shopping-cart-fill.png')" mode="aspectFit" />
         <text class="header-text-small">购物车</text>
       </view>
 
@@ -60,7 +60,7 @@
     >
       <view class="section search-section">
         <view class="search-box">
-          <image class="search-icon-img" src="/static/search.png" mode="aspectFit" />
+          <image class="search-icon-img" :src="resolveAssetUrl('/static/search.png')" mode="aspectFit" />
           <input
             v-model="query"
             class="search-input"
@@ -134,7 +134,7 @@
               <view class="gift-meta">
                 <view style="position: relative; width: 100%; height: 40rpx; margin-top: 12rpx;">
                   <text class="gift-meta-price" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;">{{ gift.priceCoins }} 币</text>
-                  <image src="/static/png/add-circle/add-circle-blue.png" style="position: absolute; right: 8rpx; top: 50%; transform: translateY(-50%); width: 36rpx; height: 36rpx;" @tap.stop="addToCart(gift)" />
+                  <image :src="resolveAssetUrl('/static/png/add-circle/add-circle-blue.png')" style="position: absolute; right: 8rpx; top: 50%; transform: translateY(-50%); width: 36rpx; height: 36rpx;" @tap.stop="addToCart(gift)" />
                 </view>
               </view>
             </view>
@@ -167,7 +167,7 @@
                 </view>
                 <view style="position: relative; width: 100%; height: 48rpx; margin-top: 8rpx;">
                   <text class="product-price" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0;">{{ product.priceCoins }} 币</text>
-                  <image src="/static/png/add-circle/add-circle.png" @tap.stop="addToCart(product)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); margin: 0; width: 40rpx; height: 40rpx;" />
+                  <image :src="resolveAssetUrl('/static/png/add-circle/add-circle.png')" @tap.stop="addToCart(product)" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); margin: 0; width: 40rpx; height: 40rpx;" />
                 </view>
               </view>
             </view>

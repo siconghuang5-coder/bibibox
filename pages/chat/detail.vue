@@ -32,7 +32,7 @@
             <template v-if="isGiftMessage(item)">
               <view class="gift-message-content" @tap="toggleGiftPanel">
                 <view class="gift-msg-icon-wrap gift-msg-icon-wrap-large">
-                  <image :src="item.mediaUrl ? resolveAssetUrl(item.mediaUrl) : '/static/png/gift/gift.png'" mode="aspectFill" class="gift-msg-icon gift-msg-icon-large" />
+                  <image :src="item.mediaUrl ? resolveAssetUrl(item.mediaUrl) : resolveAssetUrl('/static/png/gift/gift.png')" mode="aspectFill" class="gift-msg-icon gift-msg-icon-large" />
                 </view>
                 <view class="gift-msg-info gift-msg-info-large">
                   <text class="gift-msg-title">送出专属礼物</text>
@@ -44,8 +44,8 @@
             <template v-else>
               <text v-if="item.textContent" class="message-text">{{ item.textContent }}</text>
               <image v-if="item.messageType === 'IMAGE' && item.mediaUrl" class="message-image" :src="item.mediaUrl" mode="widthFix" />
-              <view v-if="item.messageType === 'AUDIO'" class="message-audio">
-                <text class="audio-label">语音消息</text>
+              <view v-if="item.messageType === 'AUDIO'" class="message-audio" @tap="playAudio(item.mediaUrl)">
+                <text class="audio-label">语音消息（点击播放）</text>
                 <text class="audio-text">{{ item.transcription || '未提供语音摘要' }}</text>
                 <view v-if="item.mediaUrl" class="audio-play-btn" @tap="playAudio(item.mediaUrl)">
                   <text class="audio-play-icon">{{ currentPlaying === item.mediaUrl ? '■' : '▶' }}</text>
@@ -169,6 +169,22 @@ const extractGiftName = (text) => {
   return match ? match[1] : '精美礼物'
 }
 
+const innerAudioContext = uni.createInnerAudioContext()
+innerAudioContext.onError((res) => {
+  console.error('Audio play error:', res)
+  uni.showToast({ title: '语音播放失败', icon: 'none' })
+})
+
+const playAudio = (url) => {
+  if (!url) return
+  if (innerAudioContext.src === url && !innerAudioContext.paused) {
+    innerAudioContext.stop()
+    return
+  }
+  innerAudioContext.src = url
+  innerAudioContext.play()
+}
+
 const showGiftPanel = ref(false)
 const holdings = ref([])
 
@@ -203,7 +219,7 @@ let pollTimer = null
 let recorderManager = null
 
 const fallbackAvatar = (role) => {
-  return role === 'USER' ? '/static/default.png' : '/static/xiaomei.jpg'
+  return role === 'USER' ? resolveAssetUrl('/static/default.png') : resolveAssetUrl('/static/xiaomei.jpg')
 }
 
 const bindRecorder = () => {

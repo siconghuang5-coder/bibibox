@@ -39,11 +39,11 @@
 
         <view class="post-footer">
           <view class="footer-action" @tap="toggleLike">
-            <image src="/static/png/favorite/favorite-red.png" mode="aspectFit" class="icon-small" />
+            <image :src="resolveAssetUrl('/static/png/favorite/favorite-red.png')" mode="aspectFit" class="icon-small" />
             <text>{{ post.stats.likes }}</text>
           </view>
           <view class="footer-action">
-            <image src="/static/png/chat-bubble/Chat Bubble-blue.png" mode="aspectFit" class="icon-small" />
+            <image :src="resolveAssetUrl('/static/png/chat-bubble/Chat Bubble-blue.png')" mode="aspectFit" class="icon-small" />
             <text>{{ post.stats.comments }}</text>
           </view>
         </view>

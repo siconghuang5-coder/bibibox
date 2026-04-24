@@ -25,7 +25,7 @@
             :show-fullscreen-btn="false"
             :show-progress="false"
             :enable-progress-gesture="false"
-            :muted="false"
+            :muted="true"
             object-fit="cover"
             @ended="onVideoEnded"
             @error="onVideoError"
@@ -39,14 +39,14 @@
       <view :class="['login-list', { 'fade-out': isAnimating }]">
         <button class="btn btn-wechat" @tap="handleWeChatLogin">
           <view class="btn-icon-wrap">
-            <image class="btn-icon" src="/static/png/wechat.png" mode="aspectFit" />
+            <image class="btn-icon" :src="resolveAssetUrl('/static/png/wechat.png')" mode="aspectFit" />
           </view>
           <text class="btn-text">微信一键登录</text>
         </button>
 
         <button class="btn btn-alipay" @tap="handleLogin">
           <view class="btn-icon-wrap btn-icon-wrap-alipay">
-            <image class="btn-icon" src="/static/png/alipay.png" mode="aspectFit" />
+            <image class="btn-icon" :src="resolveAssetUrl('/static/png/alipay.png')" mode="aspectFit" />
           </view>
           <text class="btn-text">支付宝一键登录</text>
         </button>
@@ -58,12 +58,12 @@
         </view>
 
         <button class="btn btn-outline" @tap="handleLogin">
-          <image class="btn-outline-icon-img" src="/static/metamasklogo.jpg" mode="aspectFit" />
+          <image class="btn-outline-icon-img" :src="resolveAssetUrl('/static/metamasklogo.jpg')" mode="aspectFit" />
           <text class="btn-text">MetaMask 钱包登录</text>
         </button>
 
         <button class="btn btn-outline" @tap="handleLogin">
-          <image class="btn-outline-icon-img" src="/static/walletconnect.jpg" mode="aspectFit" />
+          <image class="btn-outline-icon-img" :src="resolveAssetUrl('/static/walletconnect.jpg')" mode="aspectFit" />
           <text class="btn-text">WalletConnect 登录</text>
         </button>
       </view>
@@ -88,15 +88,15 @@
 
     <!-- 纹理覆盖层 -->
     <view :class="['texture-layer', { 'fade-to-white': isAnimating }]">
-      <image class="texture-image" src="/static/default.png" mode="aspectFill" />
+      <image class="texture-image" :src="resolveAssetUrl('/static/default.png')" mode="aspectFill" />
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, getCurrentInstance } from 'vue'
 import { API_BASE } from '../../config/api.js'
-import { loginWithPassword, loginWithWechat } from '../../utils/api.js'
+import { loginWithPassword, loginWithWechat, resolveAssetUrl } from '../../utils/api.js'
 
 const apiUrl = String(API_BASE).replace(/\/$/, '')
 const videoSrc = apiUrl + '/static/login.mp4'
@@ -160,8 +160,13 @@ const startLoginSuccessAnimation = () => {
 
   isAnimating.value = true
 
-  const videoCtx = uni.createVideoContext('loginVideo')
-  videoCtx.play()
+  const instance = getCurrentInstance()
+  const videoCtx = uni.createVideoContext('loginVideo', instance?.proxy)
+  
+  // 强制确保调用 play
+  setTimeout(() => {
+    videoCtx.play()
+  }, 50)
 
   fallbackTimer = setTimeout(() => {
     navigateToMain()

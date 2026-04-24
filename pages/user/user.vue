@@ -2,7 +2,7 @@
   <view class="page page-user">
     <view class="user-header">
       <view class="header-icon-wrap" @tap.stop="toggleDropdown">
-        <image src="/static/png/settings.png" mode="aspectFit" style="width: 44rpx; height: 44rpx; opacity: 0.8;" />
+        <image :src="resolveAssetUrl('/static/png/settings.png')" mode="aspectFit" style="width: 44rpx; height: 44rpx; opacity: 0.8;" />
         <view v-if="showDropdown" class="dropdown-menu">
           <view class="dropdown-item" @tap.stop="goNotifications">
             <text class="dropdown-item-text">提醒中心</text>
@@ -77,7 +77,7 @@
 
       <view class="menu-item" @tap="goAssets">
         <view class="menu-icon-wrap primary">
-          <image src="/static/png/wallet/wallet.png" mode="aspectFit" class="menu-icon-img" />
+          <image :src="resolveAssetUrl('/static/png/wallet/wallet.png')" mode="aspectFit" class="menu-icon-img" />
         </view>
         <text class="menu-text">我的资产</text>
         <text class="menu-arrow">›</text>
@@ -85,7 +85,7 @@
 
       <view class="menu-item" @tap="goOwnedHumans">
         <view class="menu-icon-wrap pink">
-          <image src="/static/png/smart-toy/smart_toy.png" mode="aspectFit" class="menu-icon-img" />
+          <image :src="resolveAssetUrl('/static/png/smart-toy/smart_toy.png')" mode="aspectFit" class="menu-icon-img" />
         </view>
         <text class="menu-text">我的数字人</text>
         <text class="menu-arrow">›</text>
@@ -93,7 +93,7 @@
 
       <view class="menu-item" @tap="goOrders">
         <view class="menu-icon-wrap primary">
-          <image src="/static/png/gift/gift.png" mode="aspectFit" class="menu-icon-img" />
+          <image :src="resolveAssetUrl('/static/png/gift/gift.png')" mode="aspectFit" class="menu-icon-img" />
         </view>
         <text class="menu-text">订单记录</text>
         <text class="menu-arrow">›</text>
@@ -101,7 +101,7 @@
 
       <view class="menu-item" @tap="goNotifications">
         <view class="menu-icon-wrap gray">
-          <image src="/static/png/notification/notification.png" mode="aspectFit" class="menu-icon-img" />
+          <image :src="resolveAssetUrl('/static/png/notification/notification.png')" mode="aspectFit" class="menu-icon-img" />
         </view>
         <text class="menu-text">互动提醒</text>
         <text class="menu-arrow">›</text>
@@ -109,7 +109,7 @@
 
       <view class="menu-item" @tap="goMarket">
         <view class="menu-icon-wrap gray">
-          <image src="/static/png/store-front/store-front.png" mode="aspectFit" class="menu-icon-img" />
+          <image :src="resolveAssetUrl('/static/png/store-front/store-front.png')" mode="aspectFit" class="menu-icon-img" />
         </view>
         <text class="menu-text">返回市场</text>
         <text class="menu-arrow">›</text>
@@ -132,7 +132,7 @@ const showDropdown = ref(false)
 const account = ref({
   username: '',
   displayName: '',
-  avatarUrl: '/static/default.png',
+  avatarUrl: resolveAssetUrl('/static/default.png'),
   tagline: '',
   bio: ''
 })

@@ -2,11 +2,11 @@
   <view class="page page-social">
     <view class="social-header">
       <view class="header-side">
-        <image src="/static/png/edit/edit-blue.png" class="header-icon-img" @tap="toggleComposer" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
+        <image :src="resolveAssetUrl('/static/png/edit/edit-blue.png')" class="header-icon-img" @tap="toggleComposer" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
       </view>
       <text class="header-title">Bibi Box</text>
       <view class="header-side">
-        <image src="/static/png/notification/notification-filling-blue.png" class="header-icon-img" @tap="goNotifications" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
+        <image :src="resolveAssetUrl('/static/png/notification/notification-filling-blue.png')" class="header-icon-img" @tap="goNotifications" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
       </view>
     </view>
 
@@ -62,11 +62,11 @@
 
           <view class="moment-actions">
             <view class="action" :class="{ active: item.viewer.liked }" @tap="toggleLike(item)">
-              <image src="/static/png/favorite/favorite-red.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <image :src="resolveAssetUrl('/static/png/favorite/favorite-red.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text class="action-count">{{ item.stats.likes }}</text>
             </view>
             <view class="action" @tap="openPostDetail(item.id)">
-              <image src="/static/png/chat-bubble/Chat Bubble-blue.png" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <image :src="resolveAssetUrl('/static/png/chat-bubble/Chat Bubble-blue.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text class="action-count">{{ item.stats.comments }}</text>
             </view>
           </view>

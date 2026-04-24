@@ -20,4 +20,3 @@ try {
 }
 
 export const API_BASE = String(runtimeApiBase).replace(/\/$/, '')
-export const CDN_BASE = 'https://cdn.jsdelivr.net/gh/siconghuang5-coder/bibibox@main'
