@@ -1,10 +1,10 @@
  <template>
   <view class="page page-chat-detail">
     <view class="header">
-      <text class="header-action" @tap="goBack">‹</text>
-      <view class="header-main" v-if="conversation">
-        <text class="header-title">{{ conversation.digitalHuman.displayName }}</text>
-        <text class="header-sub">{{ conversation.digitalHuman.tagline }}</text>
+      <text class="header-action header-back" @tap="goBack">‹</text>
+      <view class="header-main">
+        <text class="header-title">{{ conversation?.digitalHuman?.displayName || (conversation ? '未知数字人' : '正在加载...') }}</text>
+        <text class="header-sub">{{ conversation?.digitalHuman?.tagline || '' }}</text>
       </view>
       <text class="header-action" @tap="refreshConversation">刷新</text>
     </view>
@@ -209,11 +209,15 @@ const fallbackAvatar = (role) => {
 }
 
 const bindRecorder = () => {
+  // #ifndef H5
   if (recorderManager || typeof uni.getRecorderManager !== 'function') {
     return
   }
 
-  recorderManager = uni.getRecorderManager()
+  const manager = uni.getRecorderManager()
+  if (!manager) return
+
+  recorderManager = manager
   recorderManager.onStop((result) => {
     isRecording.value = false
     audioDraft.value = {
@@ -227,10 +231,17 @@ const bindRecorder = () => {
     console.error('[chat:recorder]', error)
     uni.showToast({ title: '录音失败', icon: 'none' })
   })
+  // #endif
 }
 
 const refreshConversation = async () => {
   if (!conversationId.value) return
+  
+  const isFirstLoad = !conversation.value
+  if (isFirstLoad) {
+    uni.showLoading({ title: '加载中...', mask: true })
+  }
+  
   try {
     const response = await request({
       url: `/api/chat/conversations/${conversationId.value}`
@@ -247,6 +258,10 @@ const refreshConversation = async () => {
   } catch (error) {
     console.error('[chat:refreshConversation]', error)
     uni.showToast({ title: '会话加载失败', icon: 'none' })
+  } finally {
+    if (isFirstLoad) {
+      uni.hideLoading()
+    }
   }
 }
 
@@ -356,9 +371,17 @@ const clearAudioDraft = () => {
 }
 
 const goBack = () => {
-  uni.navigateBack({
-    delta: 1
-  })
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack({ delta: 1 })
+  } else {
+    uni.switchTab({
+      url: '/pages/chat/chat',
+      fail: () => {
+        uni.reLaunch({ url: '/pages/chat/chat' })
+      }
+    })
+  }
 }
 
 const goMarket = () => {
@@ -384,11 +407,14 @@ const stopPolling = () => {
 
 onLoad((options) => {
   conversationId.value = options?.id || ''
+  refreshConversation()
 })
 
 onShow(() => {
   bindRecorder()
-  refreshConversation()
+  if (conversationId.value && conversation.value) {
+    refreshConversation()
+  }
   startPolling()
 })
 
@@ -451,6 +477,14 @@ onUnload(() => {
   min-width: 72rpx;
   font-size: 24rpx;
   color: #36a4f2;
+}
+
+.header-back {
+  font-size: 44rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  margin-top: -6rpx;
 }
 
 .scroll {

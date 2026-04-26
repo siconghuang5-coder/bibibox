@@ -10,7 +10,7 @@
 
     <view class="chat-search-wrap">
       <view class="chat-search">
-        <text class="chat-search-icon">🔍</text>
+        <image class="chat-search-icon" :src="resolveAssetUrl('/static/png/search/search.png')" mode="aspectFit" />
         <input
           v-model="query"
           class="chat-search-input"
@@ -219,8 +219,8 @@ onShow(() => {
   left: 24rpx;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 26rpx;
-  color: #9ca3af;
+  width: 28rpx;
+  height: 28rpx;
 }
 
 .chat-search-input {
