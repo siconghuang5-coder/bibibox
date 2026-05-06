@@ -1,5 +1,6 @@
 <template>
   <view class="page page-user">
+    <view class="status-bar"></view>
     <view class="user-header">
       <view class="header-icon-wrap" @tap.stop="toggleDropdown">
         <image :src="resolveAssetUrl('/static/png/settings.png')" mode="aspectFit" style="width: 44rpx; height: 44rpx; opacity: 0.8;" />

@@ -1,12 +1,15 @@
 <template>
   <view class="page page-social">
-    <view class="social-header">
-      <view class="header-side">
-        <image :src="resolveAssetUrl('/static/png/edit/edit-blue.png')" class="header-icon-img" @tap="toggleComposer" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
-      </view>
-      <text class="header-title">Bibi Box</text>
-      <view class="header-side">
-        <image :src="resolveAssetUrl('/static/png/notification/notification-filling-blue.png')" class="header-icon-img" @tap="goNotifications" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
+    <view class="header-container">
+      <view class="status-bar"></view>
+      <view class="social-header">
+        <view class="header-side">
+          <image :src="resolveAssetUrl('/static/png/edit/edit-blue.png')" class="header-icon-img" @tap="toggleComposer" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
+        </view>
+        <text class="header-title">Bibi Box</text>
+        <view class="header-side">
+          <image :src="resolveAssetUrl('/static/png/notification/notification-filling-blue.png')" class="header-icon-img" @tap="goNotifications" mode="aspectFit" style="width: 40rpx; height: 40rpx;" />
+        </view>
       </view>
     </view>
 
@@ -66,7 +69,7 @@
               <text class="action-count">{{ item.stats.likes }}</text>
             </view>
             <view class="action" @tap="openPostDetail(item.id)">
-              <image :src="resolveAssetUrl('/static/png/chat-bubble/Chat Bubble-blue.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <image :src="resolveAssetUrl('/static/png/chat-bubble/chat-bubble-blue.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text class="action-count">{{ item.stats.comments }}</text>
             </view>
           </view>
@@ -264,13 +267,16 @@ onShow(() => {
   min-height: 100vh;
 }
 
-.social-header {
+.header-container {
   position: sticky;
   top: 0;
   z-index: 10;
   background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16rpx);
   border-bottom: 1rpx solid #e5e7eb;
+}
+
+.social-header {
   height: 112rpx;
   padding: 0 32rpx;
   display: flex;
@@ -346,7 +352,7 @@ onShow(() => {
 }
 
 .scroll {
-  height: calc(100vh - 168rpx);
+  height: calc(100vh - 168rpx - var(--status-bar-height));
 }
 
 .composer-card,

@@ -101,7 +101,7 @@
               <text>{{ item.stats.likes }}</text>
             </view>
             <view class="footer-action" @tap="openPostDetail(item.id)">
-              <image :src="resolveAssetUrl('/static/png/chat-bubble/Chat Bubble-blue.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
+              <image :src="resolveAssetUrl('/static/png/chat-bubble/chat-bubble-blue.png')" mode="aspectFit" style="width: 32rpx; height: 32rpx;" />
               <text>{{ item.stats.comments }}</text>
             </view>
           </view>

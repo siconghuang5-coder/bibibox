@@ -1,10 +1,13 @@
 <template>
   <view class="page page-chat">
-    <view class="chat-header">
-      <text class="chat-title">聊天</text>
-      <view class="chat-header-actions">
-        <text class="chat-header-icon" @tap="refreshList">↻</text>
-        <text class="chat-header-icon" @tap="goAssets">＋</text>
+    <view class="header-container">
+      <view class="status-bar"></view>
+      <view class="chat-header">
+        <text class="chat-title">聊天</text>
+        <view class="chat-header-actions">
+          <text class="chat-header-icon" @tap="refreshList">↻</text>
+          <text class="chat-header-icon" @tap="goAssets">＋</text>
+        </view>
       </view>
     </view>
 
@@ -172,14 +175,17 @@ onShow(() => {
   min-height: 100vh;
 }
 
-.chat-header {
+.header-container {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 96rpx;
-  padding: 0 32rpx;
   background-color: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16rpx);
+}
+
+.chat-header {
+  height: 96rpx;
+  padding: 0 32rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -233,7 +239,7 @@ onShow(() => {
 }
 
 .scroll {
-  height: calc(100vh - 176rpx);
+  height: calc(100vh - 176rpx - var(--status-bar-height));
 }
 
 .pin-ai {

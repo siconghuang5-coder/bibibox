@@ -1,18 +1,20 @@
 <template>
   <view class="page page-market">
     <!-- 顶部栏 -->
-    <view class="header">
-      <view class="header-btn" @tap="handleScrollToTop">
-        <image class="header-icon-img" :src="resolveAssetUrl('/static/arrow-up.png')" mode="aspectFit" />
-        <text class="header-text-small">回到顶部</text>
+    <view class="header-container">
+      <view class="status-bar"></view>
+      <view class="header">
+        <view class="header-btn" @tap="handleScrollToTop">
+          <image class="header-icon-img" :src="resolveAssetUrl('/static/arrow-up.png')" mode="aspectFit" />
+          <text class="header-text-small">回到顶部</text>
+        </view>
+        <text class="header-title">Bibi Box 商城</text>
+        <view class="header-btn" style="position: relative;" @tap="toggleCart">
+          <view class="cart-badge" v-if="cartTotalQty > 0">{{ cartTotalQty }}</view>
+          <image class="header-icon-img" :src="resolveAssetUrl('/static/png/shopping-cart/shopping-cart-fill.png')" mode="aspectFit" />
+          <text class="header-text-small">购物车</text>
+        </view>
       </view>
-      <text class="header-title">Bibi Box 商城</text>
-      <view class="header-btn" style="position: relative;" @tap="toggleCart">
-        <view class="cart-badge" v-if="cartTotalQty > 0">{{ cartTotalQty }}</view>
-        <image class="header-icon-img" :src="resolveAssetUrl('/static/png/shopping-cart/shopping-cart-fill.png')" mode="aspectFit" />
-        <text class="header-text-small">购物车</text>
-      </view>
-
     </view>
 
     <!-- 购物车背景遮罩，移至顶层避免受到 sticky 的高度裁剪导致外部无法点击关闭 -->
@@ -409,14 +411,17 @@ onShow(() => {
     system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
 }
 
-.header {
+.header-container {
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 112rpx;
-  padding: 0 32rpx;
   background-color: #f6f7f8;
   border-bottom: 1rpx solid #e5e7eb;
+}
+
+.header {
+  height: 112rpx;
+  padding: 0 32rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -482,7 +487,7 @@ onShow(() => {
 }
 
 .scroll {
-  height: calc(100vh - 112rpx);
+  height: calc(100vh - 112rpx - var(--status-bar-height));
 }
 
 .section {

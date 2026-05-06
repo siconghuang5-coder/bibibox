@@ -1,16 +1,16 @@
 {
   "pages": [
     {
-      "path": "pages/login/login",
+      "path": "pages/market/market",
       "style": {
-        "navigationBarTitleText": "登录",
+        "navigationBarTitleText": "Bibi Box 商城",
         "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/market/market",
+      "path": "pages/login/login",
       "style": {
-        "navigationBarTitleText": "Bibi Box 商城",
+        "navigationBarTitleText": "登录",
         "navigationStyle": "custom"
       }
     },

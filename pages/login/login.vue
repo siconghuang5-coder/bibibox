@@ -9,6 +9,7 @@
 
     <!-- 内容 -->
     <view class="page-inner">
+      <view class="status-bar"></view>
       <!-- Logo / 视频动画区域 -->
       <view :class="['brand', { 'brand-animating': isAnimating }]">
         <view :class="['brand-logo', { 'brand-logo-animating': isAnimating }]">
@@ -99,8 +100,18 @@ import { API_BASE } from '../../config/api.js'
 import { loginWithPassword, loginWithWechat, resolveAssetUrl } from '../../utils/api.js'
 
 const apiUrl = String(API_BASE).replace(/\/$/, '')
-const videoSrc = apiUrl + '/static/login.mp4'
-const videoPoster = apiUrl + '/static/login.jpg'
+
+// #ifdef APP-PLUS
+// App 端为了极致的启动速度，优先使用本地静态资源
+const videoSrc = '/static/login.mp4'
+const videoPoster = '/static/login.jpg'
+// #endif
+
+// #ifndef APP-PLUS
+// 小程序/H5 等环境对本地视频/封面支持较严，使用远程地址确保兼容性
+const videoSrc = resolveAssetUrl('/static/login.mp4')
+const videoPoster = resolveAssetUrl('/static/login.jpg')
+// #endif
 
 // NOTE: 控制登录成功后的动画状态，避免重复点击
 const isAnimating = ref(false)
@@ -112,7 +123,7 @@ let fallbackTimer = null
 let hasNavigated = false
 
 /** 调试：true 用弹窗显示完整报错（方便测试）；上线前改为 false 仅用短 Toast */
-const LOGIN_ERROR_DETAIL_MODAL = true
+const LOGIN_ERROR_DETAIL_MODAL = false
 
 /**
  * 登录相关错误提示：调试模式下用 showModal 展示长文案
@@ -364,7 +375,7 @@ const onVideoError = () => {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  padding: 96rpx 48rpx 72rpx;
+  padding: 0 48rpx 72rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

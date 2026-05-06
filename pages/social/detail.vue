@@ -43,7 +43,7 @@
             <text>{{ post.stats.likes }}</text>
           </view>
           <view class="footer-action">
-            <image :src="resolveAssetUrl('/static/png/chat-bubble/Chat Bubble-blue.png')" mode="aspectFit" class="icon-small" />
+            <image :src="resolveAssetUrl('/static/png/chat-bubble/chat-bubble-blue.png')" mode="aspectFit" class="icon-small" />
             <text>{{ post.stats.comments }}</text>
           </view>
         </view>
